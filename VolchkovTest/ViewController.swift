@@ -12,6 +12,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        ApiManager.shared.getWeather(for: "Курск") { weather in
+            print(weather)
+        }
     }
 
 
