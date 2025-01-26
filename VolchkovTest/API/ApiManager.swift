@@ -20,7 +20,7 @@ class ApiManager {
         let task = URLSession.shared.dataTask(with: url) { data, responce, error in
             if let data = data, let weather = try? JSONDecoder().decode(Weather.self, from: data) {
                 completion(weather)
-                print("Данные о городе запрошены")
+                print("Данные о городе получены")
             } else {
                 print(error)
             }

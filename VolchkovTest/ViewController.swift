@@ -10,17 +10,24 @@ import Stevia
 
 class ViewController: UIViewController {
     
+    //MARK: - Properties
     private let tableView = UITableView()
     private var cities = ["Челябинск", "Курск"]
-    private var temperatures: [String: Double?] = [:]
+    private var displayedCities: [String] = []
+    private var temperatures: [String: Double] = [:]
     private var editButton = UIBarButtonItem()
+    private let searchCityController = UISearchController(searchResultsController: nil)
     
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureSearchCityController()
         configureTableView()
         configureEditButton()
         getWeatherData()
+        
+        displayedCities = cities
     }
     
     //MARK: - Edit Button Configure
@@ -38,67 +45,124 @@ class ViewController: UIViewController {
         tableView.delegate = self
     }
     
-    //MARK: - Fetch Weather Data
+    // MARK: - Search Controller Configure
+    private func configureSearchCityController() {
+        searchCityController.searchResultsUpdater = self
+        searchCityController.searchBar.placeholder = "Найти город"
+        navigationItem.searchController = searchCityController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchCityController.searchBar.delegate = self
+    }
+    
+    
+    //MARK: - Methods
     private func getWeatherData() {
         for city in cities {
             ApiManager.shared.getWeather(for: city) { [weak self] weather in
                 DispatchQueue.main.async {
                     self?.temperatures[city] = weather.main?.temp
-                    self?.tableView.reloadData()
+                    self?.reloadTableData()
                 }
             }
         }
     }
     
-    //MARK: - Edit Table
+    private func reloadTableData() {
+        if searchCityController.isActive && !searchCityController.searchBar.text!.isEmpty {
+            tableView.reloadData()
+        } else {
+            displayedCities = cities
+            tableView.reloadData()
+        }
+    }
+    
+    //MARK: - Actions
     @objc func editTable() {
         tableView.isEditing = !tableView.isEditing
-        if tableView.isEditing {
-            editButton.image = UIImage(systemName: "square.and.pencil.circle.fill")
-        } else {
-            editButton.image = UIImage(systemName: "square.and.pencil.circle")
-        }
     }
 }
 
 //MARK: - UITableViewDelegate, UITableViewDataSource
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cities.count
+        return displayedCities.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "City", for: indexPath)
         cell.selectionStyle = .none
-        let city = cities[indexPath.row]
+        let city = displayedCities[indexPath.row]
         let temperature = temperatures[city]
         var content = cell.defaultContentConfiguration()
         content.text = city
         if let temperature = temperature {
-            content.secondaryText = "\(temperature ?? 0)˚C"
-        } else {
-            content.secondaryText = "Нет данных"
+            content.secondaryText = "\(temperature)˚C"
         }
         cell.contentConfiguration = content
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigationController?.pushViewController(DetailViewController(), animated: true)
+        let selectedCity = displayedCities[indexPath.row]
+        if searchCityController.isActive && !searchCityController.searchBar.text!.isEmpty {
+            if !cities.contains(selectedCity) {
+                cities.append(selectedCity)
+                getWeatherData()
+            }
+            searchCityController.searchBar.text = ""
+            searchCityController.isActive = false
+            
+            if displayedCities.count != 0 {
+                editButton.isHidden = false
+            }
+            
+        } else {
+            navigationController?.pushViewController(DetailViewController(), animated: true)
+        }
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let city = cities[indexPath.row]
+            let city = displayedCities[indexPath.row]
             temperatures.removeValue(forKey: city)
+            displayedCities.remove(at: indexPath.row)
             cities.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
-            if cities.count == 0 {
+            
+            if displayedCities.count == 0 {
                 editButton.isHidden = true
-            } else {
-                editButton.isHidden = false
             }
         }
     }
     
+}
+
+//MARK: - UISearchResultsUpdating
+extension ViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+                
+        guard let text = searchCityController.searchBar.text, !text.isEmpty else { return }
+        ApiManager.shared.getWeather(for: text) { [weak self] Weather in
+            DispatchQueue.main.async {
+                if !self!.cities.contains(text) {
+                    self?.displayedCities = [text]
+                }
+                self?.tableView.reloadData()
+            }
+        }
+    }
+}
+
+//MARK: - UISearchBarDelegate
+extension ViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        tableView.isEditing = false //!!!
+        displayedCities = []
+        tableView.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        displayedCities = cities
+        tableView.reloadData()
+    }
 }
