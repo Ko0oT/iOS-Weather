@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     private var cities = ["Челябинск", "Курск"]
     private var displayedCities: [String] = []
     private var temperatures: [String: Double] = [:]
+    private var discriptions: [String: String] = [:]
     private var editButton = UIBarButtonItem()
     private let searchCityController = UISearchController(searchResultsController: nil)
     private var timer: Timer?
@@ -62,6 +63,7 @@ class ViewController: UIViewController {
             ApiManager.shared.getWeather(for: city) { [weak self] weather in
                 DispatchQueue.main.async {
                     self?.temperatures[city] = weather.main?.temp
+                    self?.discriptions[city] = weather.weather?[0].description
                     self?.reloadTableData()
                 }
             }
@@ -118,7 +120,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             }
             
         } else {
-            navigationController?.pushViewController(DetailViewController(), animated: true)
+            let city = displayedCities[indexPath.row]
+            navigationController?.pushViewController(DetailViewController(city: city, temperature: temperatures[city] ?? 0.0, discription: discriptions[city] ?? ""), animated: true)
         }
     }
     
@@ -126,6 +129,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             let city = displayedCities[indexPath.row]
             temperatures.removeValue(forKey: city)
+            discriptions.removeValue(forKey: city)
             displayedCities.remove(at: indexPath.row)
             cities.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
