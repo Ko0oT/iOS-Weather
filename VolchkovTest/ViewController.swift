@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     private var temperatures: [String: Double] = [:]
     private var editButton = UIBarButtonItem()
     private let searchCityController = UISearchController(searchResultsController: nil)
+    private var timer: Timer?
     
     //MARK: - Lifecycle
     override func viewDidLoad() {
@@ -142,14 +143,28 @@ extension ViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
                 
         guard let text = searchCityController.searchBar.text, !text.isEmpty else { return }
-        ApiManager.shared.getWeather(for: text) { [weak self] Weather in
-            DispatchQueue.main.async {
-                if !self!.cities.contains(text) {
-                    self?.displayedCities = [text]
+        
+        timer?.invalidate()
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
+            if !text.isEmpty {
+                ApiManager.shared.getWeather(for: text) { [weak self] Weather in
+                    DispatchQueue.main.async {
+                        if !self!.cities.contains(text) {
+                            self?.displayedCities = [text]
+                        }
+                        self?.tableView.reloadData()
+                    }
                 }
-                self?.tableView.reloadData()
+            } else {
+                DispatchQueue.main.async {
+                    self?.displayedCities = self?.cities ?? []
+                    self?.tableView.reloadData()
+                }
             }
-        }
+        })
+        
+        
     }
 }
 
