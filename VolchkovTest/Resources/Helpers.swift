@@ -11,3 +11,16 @@ enum DaysInSeconds {
     static var treeDays: Double = 259200
     static var fiveDays: Double = 432000
 }
+
+//enum WeatherDescription {
+//    пасмурно
+//    небольшой снег
+//    облачно с прояснениями
+//    снег
+//    небольшой дождь
+//    небольшая облачность
+//    переменная облачность
+//    ясно
+//    
+//    
+//}

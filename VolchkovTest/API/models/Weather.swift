@@ -9,6 +9,16 @@ import Foundation
 struct WeatherOfCity: Codable {
     let weather: [WeatherElement]?
     let main: MainTemp?
+    let coord: Coord?
+    let base: String?
+    let visibility: Int?
+    let wind: Wind?
+    let snow: Snow?
+    let clouds: Clouds?
+    let dt: Int?
+    let timezone, id: Int?
+    let name: String?
+    let cod: Int?
 }
 
 
@@ -20,4 +30,28 @@ struct MainTemp: Codable {
 // MARK: - WeatherElement
 struct WeatherElement: Codable {
     let description: String?
+}
+
+// MARK: - Clouds
+struct Clouds: Codable {
+    let all: Int?
+}
+
+// MARK: - Coord
+struct Coord: Codable {
+    let lon, lat: Double?
+}
+
+// MARK: - Snow
+struct Snow: Codable {
+    let the1H: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case the1H = "1h"
+    }
+}
+
+// MARK: - Wind
+struct Wind: Codable {
+    let speed, deg: Int?
 }

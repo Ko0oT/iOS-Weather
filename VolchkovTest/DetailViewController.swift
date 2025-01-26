@@ -90,6 +90,16 @@ class DetailViewController: UIViewController {
         
     }
     
+    private func configureTableView() {
+        view.subviews(tableView)
+        tableView.Top == segmentedControl.Bottom + 16
+        tableView.Width == view.Width
+        tableView.Bottom == view.Bottom
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Forecast")
+        tableView.dataSource = self
+    }
+
+    //MARK: - Actions
     @objc func controlChanged() {
         let currentDate = Date()
         let timestamp = Double(currentDate.timeIntervalSince1970)
@@ -102,18 +112,11 @@ class DetailViewController: UIViewController {
             tableView.reloadData()
         }
     }
-    
-    private func configureTableView() {
-        view.subviews(tableView)
-        tableView.Top == segmentedControl.Bottom + 16
-        tableView.Width == view.Width
-        tableView.Bottom == view.Bottom
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Forecast")
-        tableView.dataSource = self
-    }
 
 }
 
+
+//MARK: - UITableViewDataSource
 extension DetailViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredForecast.count
@@ -133,7 +136,16 @@ extension DetailViewController: UITableViewDataSource {
             let dateString = dateFormatter.string(from: date)
             content.text = "\(dateString)"
         }
-        content.secondaryText = "Ожидается \(filteredForecast[indexPath.row].main?.temp ?? 0.0)˚C, \(filteredForecast[indexPath.row].weather?.first?.description ?? "")"
+        
+        let temperature = filteredForecast[indexPath.row].main?.temp ?? 0.0
+        let discription = filteredForecast[indexPath.row].weather?.first?.description ?? "nodata"
+        content.secondaryText = "Ожидается \(temperature)˚C, \(discription)"
+        
+        content.image = UIImage(named: "\(discription)")
+        
+        content.imageProperties.maximumSize = CGSizeMake(52, 52)
+        content.imageToTextPadding = 48
+                                
         cell.contentConfiguration = content
         return cell
     }
