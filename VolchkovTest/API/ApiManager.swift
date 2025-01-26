@@ -7,9 +7,11 @@
 
 import Foundation
 
-class ApiManager {
+final class ApiManager {
     
     static let shared = ApiManager()
+    
+    private init() {}
     
     private let apiKey = "eed549a0b527acdf0486c49b6bb92fa9"
     private let baseURL = "https://api.openweathermap.org/data/2.5/"

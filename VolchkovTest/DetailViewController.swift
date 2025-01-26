@@ -8,7 +8,7 @@
 import UIKit
 import Stevia
 
-class DetailViewController: UIViewController {
+final class DetailViewController: UIViewController {
     
     //MARK: - Properties
     private let city: String
@@ -93,8 +93,10 @@ class DetailViewController: UIViewController {
     private func configureTableView() {
         view.subviews(tableView)
         tableView.Top == segmentedControl.Bottom + 16
-        tableView.Width == view.Width
-        tableView.Bottom == view.Bottom
+        tableView.left(0).bottom(0).right(0)
+//        tableView.Leading == view.Leading
+//        tableView.Trailing == view.Trailing
+//        tableView.Bottom == view.Bottom
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Forecast")
         tableView.dataSource = self
     }
@@ -140,12 +142,10 @@ extension DetailViewController: UITableViewDataSource {
         let temperature = filteredForecast[indexPath.row].main?.temp ?? 0.0
         let discription = filteredForecast[indexPath.row].weather?.first?.description ?? "nodata"
         content.secondaryText = "Ожидается \(temperature)˚C, \(discription)"
-        
         content.image = UIImage(named: "\(discription)")
-        
         content.imageProperties.maximumSize = CGSizeMake(52, 52)
         content.imageToTextPadding = 48
-                                
+        content.imageToTextPadding = 48
         cell.contentConfiguration = content
         return cell
     }

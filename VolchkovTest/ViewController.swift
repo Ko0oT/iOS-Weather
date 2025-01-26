@@ -8,7 +8,7 @@
 import UIKit
 import Stevia
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
     
     //MARK: - Properties
     private let tableView = UITableView()
