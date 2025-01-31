@@ -1,35 +1,24 @@
 // This file was generated from JSON Schema using quicktype, do not modify it directly.
 // To parse the JSON, add this file to your project and do:
 //
-//   let weather = try? JSONDecoder().decode(Weather.self, from: jsonData)
+//   let weatherOfCity = try? JSONDecoder().decode(WeatherOfCity.self, from: jsonData)
 
 import Foundation
 
-// MARK: - Weather
+// MARK: - WeatherOfCity
 struct WeatherOfCity: Codable {
-    let weather: [WeatherElement]?
-    let main: MainTemp?
     let coord: Coord?
+    let weather: [Weather]?
     let base: String?
+    let main: MainTemp?
     let visibility: Int?
     let wind: Wind?
-    let snow: Snow?
     let clouds: Clouds?
     let dt: Int?
+    let sys: Sys?
     let timezone, id: Int?
     let name: String?
     let cod: Int?
-}
-
-
-// MARK: - Main
-struct MainTemp: Codable {
-    let temp: Double?
-}
-
-// MARK: - WeatherElement
-struct WeatherElement: Codable {
-    let description: String?
 }
 
 // MARK: - Clouds
@@ -42,16 +31,32 @@ struct Coord: Codable {
     let lon, lat: Double?
 }
 
-// MARK: - Snow
-struct Snow: Codable {
-    let the1H: Double?
+// MARK: - Main
+struct MainTemp: Codable {
+    let temp, feelsLike, tempMin, tempMax: Double?
+    let pressure, humidity, seaLevel, grndLevel: Int?
 
     enum CodingKeys: String, CodingKey {
-        case the1H = "1h"
+        case temp
+        case feelsLike = "feels_like"
+        case tempMin = "temp_min"
+        case tempMax = "temp_max"
+        case pressure, humidity
+        case seaLevel = "sea_level"
+        case grndLevel = "grnd_level"
     }
+}
+
+// MARK: - Sys
+struct Sys: Codable {
+    let type, id: Int?
+    let country: String?
+    let sunrise, sunset: Int?
 }
 
 // MARK: - Wind
 struct Wind: Codable {
-    let speed, deg: Int?
+    let speed: Double?
+    let deg: Int?
+    let gust: Double?
 }

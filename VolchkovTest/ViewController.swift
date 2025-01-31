@@ -63,7 +63,7 @@ final class ViewController: UIViewController {
             ApiManager.shared.getWeather(for: city) { [weak self] weather in
                 DispatchQueue.main.async {
                     self?.temperatures[city] = weather.main?.temp
-                    self?.discriptions[city] = weather.weather?[0].description
+                    self?.discriptions[city] = weather.weather?.first?.description
                     self?.reloadTableData()
                 }
             }
@@ -121,7 +121,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         } else {
             let city = displayedCities[indexPath.row]
-            navigationController?.pushViewController(DetailViewController(city: city, temperature: temperatures[city] ?? 0.0, discription: discriptions[city] ?? ""), animated: true)
+            let detailVC = DetailViewController(city: city, temperature: temperatures[city] ?? 0.0, discription: discriptions[city] ?? "")
+            detailVC.view.backgroundColor = .white
+            navigationController?.pushViewController(detailVC, animated: true)
         }
     }
     
